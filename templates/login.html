@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rain Predict - Login</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/rain_predict_logo.jpg') }}" alt="Logo">
+            <span class="logo-text">Rain Predict</span>
+        </div>
+        <div class="navbar-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('index') }}">Login</a>
+            <a href="{{ url_for('registration') }}">Register</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </div>
+    </nav>
+    <div id="login-section" class="login-section">
+        <div class="login-form">
+            <h2 style="text-align: center;">Login</h2>
+            <form id="login-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">Login</button>
+            </form>
+            <div id="register-prompt" style="display: none;">
+                <p style="color: red;">User data doesn't exist. Please register to proceed.</p>
+            </div>
+            <div id="user-not-found" style="display: none;">
+                <p style="color: red;">User not found. Please register to proceed.</p>
+            </div>
+            <div id="incorrect-credentials" style="display: none;">
+                <p style="color: red;">Incorrect email or password.</p>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <h2>Rain Predict</h2>
+                <p>RainPredict uses cutting-edge technology for precise weather forecasting, ensuring your plans are unaffected by the unexpected.</p>
+                <div class="social-links">
+                    <a href="#"><img src="{{ url_for('static', filename='images/facebook.png') }}" alt="Facebook"></a>
+                    <a href="#"><img src="{{ url_for('static', filename='images/instagram.jpg') }}" alt="Instagram"></a>
+                    <a href="#"><img src="{{ url_for('static', filename='images/twitter.png') }}" alt="Twitter"></a>
+                    <a href="#"><img src="{{ url_for('static', filename='images/linkedin.png') }}" alt="LinkedIn"></a>
+                </div>
+            </div>
+            <div class="footer-center">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Works</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <h3>Help</h3>
+                <ul>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-line">
+            <p>© Copyright 2024, Team Binary Brains</p>
+        </div>
+    </footer>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyCQqF_baR5kDeaO8Y9RM3sXgzTVpTWAvCk",
+          authDomain: "rainfall-c8237.firebaseapp.com",
+          projectId: "rainfall-c8237",
+          storageBucket: "rainfall-c8237.appspot.com",
+          messagingSenderId: "456536178881",
+          appId: "1:456536178881:web:0144bbcff2d17eda031440"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const dbref = ref(db);
+
+        const loginForm = document.getElementById('login-form');
+        const registerPrompt = document.getElementById('register-prompt');
+        const userNotFound = document.getElementById('user-not-found');
+        const incorrectCredentials = document.getElementById('incorrect-credentials');
+
+        const LogInUser = (evt) => {
+            evt.preventDefault();
+
+            const emailInput = document.getElementById('email').value;
+            const passwordInput = document.getElementById('password').value;
+
+            signInWithEmailAndPassword(auth, emailInput, passwordInput)
+            .then((credentials) => {
+                console.log('User logged in:', credentials.user.uid);
+                get(child(dbref, 'UsersAuthList/' + credentials.user.uid)).then((snapshot) => {
+                    console.log('Snapshot:', snapshot.val());
+                    if (snapshot.exists()) {
+                        console.log('User data:', snapshot.val());
+                        sessionStorage.setItem("user-info", JSON.stringify({
+                            name: snapshot.val().name
+                        }));
+                        sessionStorage.setItem("user-creds", JSON.stringify(credentials.user));
+                        console.log("Redirecting to index page...");
+                        window.location.href = '/indata';
+                    } else {
+                        console.log("User data doesn't exist");
+                        registerPrompt.style.display = 'block';
+                        userNotFound.style.display = 'none';
+                        incorrectCredentials.style.display = 'none';
+                    }
+                }).catch(error => {
+                    console.error('Error fetching user data:', error);
+                    registerPrompt.style.display = 'block';
+                    userNotFound.style.display = 'none';
+                    incorrectCredentials.style.display = 'none';
+                });
+            })
+            .catch((error) => {
+                console.error('Login error:', error);
+                if (error.code === 'auth/user-not-found') {
+                    userNotFound.style.display = 'block';
+                    registerPrompt.style.display = 'none';
+                    incorrectCredentials.style.display = 'none';
+                } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-email') {
+                    incorrectCredentials.style.display = 'block';
+                    userNotFound.style.display = 'none';
+                    registerPrompt.style.display = 'none';
+                } else {
+                    registerPrompt.style.display = 'none';
+                    userNotFound.style.display = 'none';
+                    incorrectCredentials.style.display = 'block';
+                }
+            });
+        }
+
+        loginForm.addEventListener('submit', LogInUser);
+    </script>
+</body>
+</html>

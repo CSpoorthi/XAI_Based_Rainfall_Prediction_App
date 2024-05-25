@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rain Predict - Registration</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Style for success message */
+        .success-message {
+            background-color: #d4edda; /* Green background */
+            color: #155724; /* Dark green text */
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb; /* Light green border */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/rain_predict_logo.jpg') }}" alt="Logo">
+            <span class="logo-text">Rain Predict</span>
+        </div>
+        <div class="navbar-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('registration') }}">Register</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+        </div>
+    </nav>
+    <div id="registration-section" class="registration-section">
+        <div class="registration-form">
+            <h2 style="text-align: center;">Register</h2>
+            <form id="registration-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" autocomplete="name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" autocomplete="email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" autocomplete="new-password" required>
+
+                <button type="submit">Register</button>
+            </form>
+            <div id="success-message" class="success-message" style="display: none;">
+                Registration successful!
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <h2>Rain Predict</h2>
+                <p>RainPredict uses cutting-edge technology for precise weather forecasting, ensuring your plans are unaffected by the unexpected.</p>
+                <div class="social-links">
+                    <a href="#"><img src="{{ url_for('static', filename='images/facebook.png') }}" alt="Facebook"></a>
+                    <a href="#"><img src="{{ url_for('static', filename='images/instagram.jpg') }}" alt="Instagram"></a>
+                    <a href="#"><img src="{{ url_for('static', filename='images/twitter.png') }}" alt="Twitter"></a>
+                    <a href="#"><img src="{{ url_for('static', filename='images/linkedin.png') }}" alt="LinkedIn"></a>
+                </div>
+            </div>
+            <div class="footer-center">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Works</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <h3>Help</h3>
+                <ul>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-line">
+            <p>© Copyright 2024, Team Binary Brains</p>
+        </div>
+    </footer>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, set, ref } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+        const firebaseConfig = {
+          apiKey: "AIzaSyCQqF_baR5kDeaO8Y9RM3sXgzTVpTWAvCk",
+          authDomain: "rainfall-c8237.firebaseapp.com",
+          projectId: "rainfall-c8237",
+          storageBucket: "rainfall-c8237.appspot.com",
+          messagingSenderId: "456536178881",
+          appId: "1:456536178881:web:0144bbcff2d17eda031440"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth(app);
+
+        let registrationForm = document.getElementById('registration-form');
+        let successMessage = document.getElementById('success-message');
+
+        let registerUser = evt => {
+            evt.preventDefault();
+
+            let emailInput = document.getElementById('email');
+            let nameInput = document.getElementById('name');
+            let passwordInput = document.getElementById('password');
+
+            createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+            .then((credentials)=>{
+                set(ref(db, 'UsersAuthList/' +credentials.user.uid),{
+                    name: nameInput.value
+                }).then(() => {
+                    successMessage.style.display = 'block'; // Show the success message
+                    registrationForm.reset(); // Reset the form
+                    setTimeout(() => {
+                        successMessage.style.display = 'none'; // Hide the success message after 3 seconds
+                    }, 3000);
+                });
+            })
+            .catch((error)=>{
+                alert(error.message);
+                console.log(error.code);
+                console.log(error.message);
+
+            })
+        }
+
+        registrationForm.addEventListener('submit', registerUser)
+      </script>
+</body>
+</html>
