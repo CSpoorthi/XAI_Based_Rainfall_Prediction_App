@@ -1,5 +1,6 @@
 # Rainfall_Prediction_App
-Dataset Link: [WeatherAUS Dataset](https://www.kaggle.com/datasets/lionelbottan/weatheraus)
+Rainfall Dataset Link: [WeatherAUS Dataset](https://www.kaggle.com/datasets/lionelbottan/weatheraus)
+Australian Crop Dataset Link: [Crop Dataset](https://www.kaggle.com/datasets/patelris/crop-yield-prediction-dataset)
 
 This app predicts rainfall using machine learning models trained on the WeatherAUS dataset. It provides insights into the dataset, allows model training, and enables users to input their data for predictions.
 
@@ -10,7 +11,7 @@ bash
 Copy code
 git clone <repository_link>
 
-Dataset: The preprocessed data, cleaned_data.csv, is used for model training.
+Dataset: The preprocessed data, cleaned_data.csv and crops.csv is used for model training.
 
 Model Training: The model is trained in Jupyter Notebook or Google Colab using the cleaned data. Ensure that the dependencies listed in the requirements.txt file are installed.
 
